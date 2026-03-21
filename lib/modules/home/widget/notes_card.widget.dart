@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NoteCardWidget extends ConsumerWidget {
-  const NoteCardWidget({super.key});
+class NoteCardWidget extends StatelessWidget {
+  final String title;
+  final String content;
+  const NoteCardWidget({super.key, required this.title, required this.content});
 
   @override
-  Widget build(BuildContext context, WidgetRef widget) {
+  Widget build(BuildContext context) {
     return InkWell(
       onTap: () {},
       child: Container(
@@ -21,10 +23,10 @@ class NoteCardWidget extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text(
-              "Title",
+              title,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
-            Text("Content"),
+            Text(content),
           ],
         ),
       ),
