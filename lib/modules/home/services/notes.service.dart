@@ -17,11 +17,8 @@ class NotesService {
   void updateNotes(Notes note) {
     Future.delayed(Duration(seconds: 2));
     final index = notes.indexWhere((element) => element.id == note.id);
-    if (index == -1) {
-      addNotes(note);
-    } else {
-      notes[index] = note;
-    }
+
+    notes[index] = note;
   }
 
   Future<List<Notes>> fetchNotes() async {

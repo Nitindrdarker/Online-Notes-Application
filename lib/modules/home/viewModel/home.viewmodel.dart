@@ -11,7 +11,7 @@ class HomeViewModel extends Notifier<HomeStateModel> {
     return HomeStateModel();
   }
 
-  void addNotes() async {
+  Future<void> addNotes() async {
     final _id = UniqueKey().toString();
     final _createdAt = DateTime.now();
     final _updatedAt = DateTime.now();
@@ -34,13 +34,45 @@ class HomeViewModel extends Notifier<HomeStateModel> {
     fetchNotes();
   }
 
-  void updateNotes(Notes notes) async {
-    getIt<NotesService>().updateNotes(notes);
-    fetchNotes();
+  Future<void> updateNotes(String? id) async {
+    if (id == null) {
+      addNotes();
+    } else {
+      final list = state.notes;
+      Notes note = list.firstWhere((ele) => ele.id == id);
+
+      final _updatedAt = DateTime.now();
+      final _content = state.dialogBoxFieldNoteController.text;
+      final _title = state.dialogBoxFieldTitleController.text;
+      Notes _note = Notes(
+        content: _content,
+        title: _title,
+        id: note.id,
+        updatedAt: _updatedAt,
+        createdAt: note.createdAt,
+      );
+
+      getIt<NotesService>().updateNotes(_note);
+      fetchNotes();
+    }
   }
 
   void fetchNotes({String? id}) async {
     final lists = await getIt<NotesService>().fetchNotes();
     state = state.copyWith(notes: lists);
+  }
+
+  TextEditingController getTitleController(Notes? note) {
+    if (note != null) {
+      state.dialogBoxFieldTitleController.text = note.title;
+    }
+    return state.dialogBoxFieldTitleController;
+  }
+
+  TextEditingController getFieldController(Notes? note) {
+    if (note != null) {
+      state.dialogBoxFieldNoteController.text = note.content;
+    }
+    return state.dialogBoxFieldNoteController;
   }
 }
