@@ -10,7 +10,6 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeProvider);
-    final viewModel = ref.read(homeProvider.notifier);
     return Scaffold(
       appBar: AppBar(title: Text("Home")),
       body: ListView.builder(
@@ -26,42 +25,6 @@ class HomePage extends ConsumerWidget {
             context,
             MaterialPageRoute(builder: (context) => NotePage()),
           );
-          // showDialog(
-          //   context: context,
-          //   builder: (context) {
-          //     return AlertDialog(
-          //       title: Text("Add Note"),
-          //       content: Column(
-          //         mainAxisSize: MainAxisSize.min,
-          //         children: [
-          //           TextField(
-          //             controller: state.dialogBoxFieldTitleController,
-          //             decoration: InputDecoration(hintText: "Enter Title"),
-          //           ),
-          //           TextField(
-          //             controller: state.dialogBoxFieldNoteController,
-          //             decoration: InputDecoration(hintText: "Enter note"),
-          //           ),
-          //         ],
-          //       ),
-          //       actions: [
-          //         TextButton(
-          //           onPressed: () {
-          //             Navigator.pop(context);
-          //           },
-          //           child: Text("Cancel"),
-          //         ),
-          //         ElevatedButton(
-          //           onPressed: () {
-          //             viewModel.addNotes();
-          //             Navigator.pop(context);
-          //           },
-          //           child: Text("Save"),
-          //         ),
-          //       ],
-          //     );
-          //   },
-          // );
         },
         child: Icon(Icons.add),
       ),

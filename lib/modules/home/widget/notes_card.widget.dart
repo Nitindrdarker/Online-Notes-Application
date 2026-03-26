@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:online_todo/modules/home/models/notes.dart';
 import 'package:online_todo/modules/home/page/note.page.dart';
+import 'package:online_todo/modules/home/provider/home.provider.dart';
+import 'package:online_todo/modules/home/viewModel/home.viewmodel.dart';
 
-class NoteCardWidget extends StatelessWidget {
+class NoteCardWidget extends ConsumerWidget {
   final Notes note;
   const NoteCardWidget({super.key, required this.note});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final viewModel = ref.read(homeProvider.notifier);
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -24,15 +27,27 @@ class NoteCardWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Theme.of(context).dividerColor, width: 1),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+        child: Row(
           children: [
-            Text(
-              note.title,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    note.title,
+                    style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20),
+                  ),
+                  Text(note.content),
+                ],
+              ),
             ),
-            Text(note.content),
+            IconButton(
+              onPressed: () {
+                viewModel.deleteNotes(note.id);
+              },
+              icon: Icon(Icons.delete_outline),
+            ),
           ],
         ),
       ),
