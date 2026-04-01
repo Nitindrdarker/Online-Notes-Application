@@ -6,6 +6,7 @@ import com.example.online_todo.models.Note;
 import com.example.online_todo.services.NoteService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/notes")
@@ -18,8 +19,8 @@ public class NoteController {
     }
 
     @GetMapping
-    public List<Note> getAllNotes() {
-        return service.getAllNotes();
+    public Map<String, Object> getAllNotes() {
+        return Map.of("notes",service.getAllNotes());
     }
 
     @PostMapping
@@ -31,4 +32,12 @@ public class NoteController {
     public void deleteNote(@PathVariable Long id) {
         service.deleteNote(id);
     }
+
+
+    @PutMapping("/{id}")
+public Note updateNote(@PathVariable Long id, @RequestBody Note note) {
+    return service.updateNote(id, note.getTitle(), note.getContent(), note.getUpdatedAt());
+}
+
+
 }

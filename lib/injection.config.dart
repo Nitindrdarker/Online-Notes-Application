@@ -11,6 +11,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:online_todo/BaseHttp.dart' as _i1023;
 import 'package:online_todo/modules/home/services/notes.service.dart' as _i886;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -20,7 +21,10 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
-    gh.lazySingleton<_i886.NotesService>(() => _i886.NotesService());
+    gh.lazySingleton<_i1023.Basehttp>(() => _i1023.Basehttp());
+    gh.lazySingleton<_i886.NotesService>(
+      () => _i886.NotesService(gh<_i1023.Basehttp>()),
+    );
     return this;
   }
 }

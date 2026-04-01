@@ -10,23 +10,33 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeProvider);
+
     return Scaffold(
-      appBar: AppBar(title: Text("Home")),
-      body: ListView.builder(
-        itemCount: state.notes.length,
-        itemBuilder: (context, index) {
-          final note = state.notes[index];
-          return NoteCardWidget(note: note);
+      appBar: AppBar(title: const Text("Home")),
+      body: state.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+
+        error: (e, _) => Center(child: Text("Error: $e")),
+
+        data: (data) {
+          return ListView.builder(
+            itemCount: data.notes.length,
+            itemBuilder: (context, index) {
+              final note = data.notes[index];
+              return NoteCardWidget(note: note);
+            },
+          );
         },
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => NotePage()),
+            MaterialPageRoute(builder: (context) => const NotePage()),
           );
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

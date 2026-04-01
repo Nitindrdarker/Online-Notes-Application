@@ -13,16 +13,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Note{
+public class Note {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id; // ✅ FIXED
 
     private String title;
     private String content;
     private String createdAt;
     private String updatedAt;
-
-
-
 }

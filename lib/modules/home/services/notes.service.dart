@@ -1,28 +1,32 @@
 import 'package:injectable/injectable.dart';
+import 'package:online_todo/BaseHttp.dart';
 import 'package:online_todo/modules/home/models/notes.dart';
 import 'package:online_todo/modules/home/repository/notes.repository.dart';
+import 'package:online_todo/urls.dart';
 
 @lazySingleton
 class NotesService {
-  void addNotes(Notes note) {
-    Future.delayed(Duration(seconds: 2));
-    notes.add(note);
+  final Basehttp http;
+  NotesService(this.http);
+
+  Future<void> addNotes(Notes note) async {
+    final url = Urls.notes;
+    final response = await http.client.post(url, data: note.toJson());
   }
 
-  void deleteNotes(String id) {
-    Future.delayed(Duration(seconds: 2));
-    notes.removeWhere((ele) => ele.id == id);
+  Future<void> deleteNotes(String id) async {
+    final url = "${Urls.notes}/$id";
+    final response = await http.client.delete(url);
   }
 
-  void updateNotes(Notes note) {
-    Future.delayed(Duration(seconds: 2));
-    final index = notes.indexWhere((element) => element.id == note.id);
-
-    notes[index] = note;
+  Future<void> updateNotes(Notes note) async {
+    final url = "${Urls.notes}/${note.id}";
+    final response = await http.client.put(url, data: note.toJson());
   }
 
-  Future<List<Notes>> fetchNotes() async {
-    Future.delayed(Duration(seconds: 2));
-    return notes;
+  Future<NotesResponse> fetchNotes() async {
+    final url = Urls.notes;
+    final response = await http.client.get(url);
+    return NotesResponse.fromJson(response.data);
   }
 }

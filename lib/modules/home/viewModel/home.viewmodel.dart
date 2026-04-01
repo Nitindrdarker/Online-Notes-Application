@@ -2,13 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:online_todo/injection.dart';
 import 'package:online_todo/modules/home/models/notes.dart';
+import 'package:online_todo/modules/home/repository/notes.repository.dart';
 import 'package:online_todo/modules/home/services/notes.service.dart';
 import 'package:online_todo/modules/home/stateModel/home.state.model.dart';
 
-class HomeViewModel extends Notifier<HomeStateModel> {
+class HomeViewModel extends AsyncNotifier<HomeStateModel> {
   @override
-  HomeStateModel build() {
-    return HomeStateModel();
+  Future<HomeStateModel> build() async {
+    final response = await getIt<NotesService>().fetchNotes();
+    return HomeStateModel(notes: response.notes);
   }
 
   Future<void> addNotes(String title, String content) async {
@@ -17,7 +19,7 @@ class HomeViewModel extends Notifier<HomeStateModel> {
     final _updatedAt = DateTime.now();
     final _content = content;
     final _title = title;
-    getIt<NotesService>().addNotes(
+    await getIt<NotesService>().addNotes(
       Notes(
         id: _id,
         title: _title,
@@ -26,39 +28,39 @@ class HomeViewModel extends Notifier<HomeStateModel> {
         updatedAt: _updatedAt,
       ),
     );
-    fetchNotes();
+    ref.invalidateSelf();
   }
 
   void deleteNotes(String id) async {
-    getIt<NotesService>().deleteNotes(id);
-    fetchNotes();
+    await getIt<NotesService>().deleteNotes(id);
+    ref.invalidateSelf();
   }
 
   Future<void> updateNotes(String? id, String title, String content) async {
     if (id == null) {
-      addNotes(title, content);
-    } else {
-      final list = state.notes;
-      Notes note = list.firstWhere((ele) => ele.id == id);
-
-      final _updatedAt = DateTime.now();
-      final _content = content;
-      final _title = title;
-      Notes _note = Notes(
-        content: _content,
-        title: _title,
-        id: note.id,
-        updatedAt: _updatedAt,
-        createdAt: note.createdAt,
-      );
-
-      getIt<NotesService>().updateNotes(_note);
-      fetchNotes();
+      await addNotes(title, content);
+      return;
     }
+
+    final current = state.valueOrNull;
+    if (current == null) return;
+
+    final note = current.notes.firstWhere((e) => e.id == id);
+
+    final updated = note.copyWith(
+      title: title,
+      content: content,
+      updatedAt: DateTime.now(),
+    );
+
+    await getIt<NotesService>().updateNotes(updated);
+
+    ref.invalidateSelf();
   }
 
-  void fetchNotes({String? id}) async {
-    final lists = await getIt<NotesService>().fetchNotes();
-    state = state.copyWith(notes: lists);
-  }
+  // in case of normal notifier
+  // void fetchNotes({String? id}) async {
+  //   NotesResponse lists = await getIt<NotesService>().fetchNotes();
+  //   state = state.copyWith(notes: lists.notes);
+  // }
 }

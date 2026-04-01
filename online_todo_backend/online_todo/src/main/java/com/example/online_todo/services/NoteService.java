@@ -27,4 +27,18 @@ public class NoteService {
     public void deleteNote(Long id) {
         repo.deleteById(id);
     }
+
+
+    public Note updateNote(Long id, String title, String content, String updateAt) {
+
+    Note existingNote = repo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
+
+    existingNote.setTitle(title);
+    existingNote.setContent(content);
+    existingNote.setUpdatedAt(updateAt);
+
+    return repo.save(existingNote);
+}
+    
 }
