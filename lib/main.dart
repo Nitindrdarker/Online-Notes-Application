@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:online_todo/injection.dart';
 import 'package:online_todo/modules/home/page/home.page.dart';
+import 'package:online_todo/modules/login/page/login.page.dart';
 
 void main() {
   configureDependencies();
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: HomePage(),
+      home: LoginRegisterPage(),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import 'package:online_todo/modules/db.dart';
 
 @lazySingleton
 class Basehttp {
@@ -19,7 +20,7 @@ class Basehttp {
     client.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          String? token = null;
+          String? token = jwtToken;
           if (token != null) {
             options.headers['Authorization'] = "Bearer $token";
           }

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:online_todo/modules/home/page/note.page.dart';
 import 'package:online_todo/modules/home/provider/home.provider.dart';
 import 'package:online_todo/modules/home/widget/notes_card.widget.dart';
+import 'package:online_todo/modules/login/page/login.page.dart';
+import 'package:online_todo/modules/profile/page/profile.page.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -12,11 +14,26 @@ class HomePage extends ConsumerWidget {
     final state = ref.watch(homeProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Home")),
+      appBar: AppBar(
+        title: const Text("Home"),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginRegisterPage()),
+              );
+            },
+            icon: Icon(Icons.person),
+          ),
+        ],
+      ),
       body: state.when(
         loading: () => const Center(child: CircularProgressIndicator()),
 
-        error: (e, _) => Center(child: Text("Error: $e")),
+        error: (e, _) {
+          return Center(child: Text("Service Unavalible"));
+        },
 
         data: (data) {
           return ListView.builder(

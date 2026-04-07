@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 import com.example.online_todo.models.Note;
 import com.example.online_todo.services.NoteService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 import java.util.Map;
 
@@ -18,15 +20,21 @@ public class NoteController {
         this.service = service;
     }
 
-    @GetMapping
-    public Map<String, Object> getAllNotes() {
-        return Map.of("notes",service.getAllNotes());
-    }
+@GetMapping
+public Map<String, Object> getAllNotes(HttpServletRequest request) {
 
-    @PostMapping
-    public Note createNote(@RequestBody Note note) {
-        return service.createNote(note);
-    }
+    String username = (String) request.getAttribute("username");
+
+    return Map.of("notes", service.getAllNotes(username));
+}
+
+ @PostMapping
+public Note createNote(@RequestBody Note note, HttpServletRequest request) {
+
+    String username = (String) request.getAttribute("username");
+
+    return service.createNote(note, username);
+}
 
     @DeleteMapping("/{id}")
     public void deleteNote(@PathVariable Long id) {
