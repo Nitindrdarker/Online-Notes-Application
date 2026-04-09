@@ -9,58 +9,82 @@ import 'package:online_todo/modules/home/stateModel/home.state.model.dart';
 class HomeViewModel extends AsyncNotifier<HomeStateModel> {
   @override
   Future<HomeStateModel> build() async {
-    final response = await getIt<NotesService>().fetchNotes();
-    return HomeStateModel(notes: response.notes);
+    final response = await getIt<NotesService>().fetchNotes(page: 0);
+
+    return HomeStateModel(
+      notes: response.notes,
+      page: 1,
+      hasMore: response.notes.isNotEmpty,
+      isLoadingMore: false,
+    );
+  }
+
+  // ✅ PAGINATION (LOAD MORE)
+  Future<void> fetchMore() async {
+    final current = state.valueOrNull;
+
+    if (current == null || current.isLoadingMore || !current.hasMore) return;
+
+    state = AsyncData(current.copyWith(isLoadingMore: true));
+
+    final response = await getIt<NotesService>().fetchNotes(page: current.page);
+
+    final newNotes = response.notes;
+
+    state = AsyncData(
+      current.copyWith(
+        notes: [...current.notes, ...newNotes],
+        page: current.page + 1,
+        hasMore: newNotes.isNotEmpty,
+        isLoadingMore: false,
+      ),
+    );
   }
 
   Future<void> addNotes(String title, String content) async {
-    final _id = UniqueKey().toString();
-    final _createdAt = DateTime.now();
-    final _updatedAt = DateTime.now();
-    final _content = content;
-    final _title = title;
-    await getIt<NotesService>().addNotes(
-      Notes(
-        id: _id,
-        title: _title,
-        content: _content,
-        createdAt: _createdAt,
-        updatedAt: _updatedAt,
-      ),
+    final now = DateTime.now();
+
+    final newNote = await getIt<NotesService>().addNotes(
+      Notes(title: title, content: content, createdAt: now, updatedAt: now),
     );
-    ref.invalidateSelf();
-  }
-
-  void deleteNotes(String id) async {
-    await getIt<NotesService>().deleteNotes(id);
-    ref.invalidateSelf();
-  }
-
-  Future<void> updateNotes(String? id, String title, String content) async {
-    if (id == null) {
-      await addNotes(title, content);
-      return;
-    }
 
     final current = state.valueOrNull;
     if (current == null) return;
 
-    final note = current.notes.firstWhere((e) => e.id == id);
+    state = AsyncData(current.copyWith(notes: [newNote, ...current.notes]));
+  }
 
-    final updated = note.copyWith(
+  // ✅ DELETE NOTE (NO INVALIDATE)
+  Future<void> deleteNotes(String id) async {
+    await getIt<NotesService>().deleteNotes(id);
+
+    final current = state.valueOrNull;
+    if (current == null) return;
+
+    state = AsyncData(
+      current.copyWith(notes: current.notes.where((e) => e.id != id).toList()),
+    );
+  }
+
+  // ✅ UPDATE NOTE (NO INVALIDATE)
+  Future<void> updateNotes(String id, String title, String content) async {
+    final current = state.valueOrNull;
+    if (current == null) return;
+
+    final index = current.notes.indexWhere((e) => e.id == id);
+    if (index == -1) return;
+
+    final updated = current.notes[index].copyWith(
       title: title,
       content: content,
       updatedAt: DateTime.now(),
     );
 
-    await getIt<NotesService>().updateNotes(updated);
+    final saved = await getIt<NotesService>().updateNotes(updated);
 
-    ref.invalidateSelf();
+    final updatedList = [...current.notes];
+    updatedList[index] = saved;
+
+    state = AsyncData(current.copyWith(notes: updatedList));
   }
-
-  // in case of normal notifier
-  // void fetchNotes({String? id}) async {
-  //   NotesResponse lists = await getIt<NotesService>().fetchNotes();
-  //   state = state.copyWith(notes: lists.notes);
-  // }
 }

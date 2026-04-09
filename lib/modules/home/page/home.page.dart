@@ -6,11 +6,36 @@ import 'package:online_todo/modules/home/widget/notes_card.widget.dart';
 import 'package:online_todo/modules/login/page/login.page.dart';
 import 'package:online_todo/modules/profile/page/profile.page.dart';
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final ScrollController _controller = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller.addListener(() {
+      if (_controller.position.pixels >=
+          _controller.position.maxScrollExtent - 200) {
+        ref.read(homeProvider.notifier).fetchMore();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(homeProvider);
 
     return Scaffold(
@@ -18,29 +43,37 @@ class HomePage extends ConsumerWidget {
         title: const Text("Home"),
         actions: [
           IconButton(
+            icon: const Icon(Icons.person),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => LoginRegisterPage()),
+                MaterialPageRoute(builder: (_) => const ProfilePage()),
               );
             },
-            icon: Icon(Icons.person),
           ),
         ],
       ),
+
       body: state.when(
         loading: () => const Center(child: CircularProgressIndicator()),
 
-        error: (e, _) {
-          return Center(child: Text("Service Unavalible"));
-        },
+        error: (e, _) => const Center(child: Text("Service Unavailable")),
 
         data: (data) {
           return ListView.builder(
-            itemCount: data.notes.length,
+            controller: _controller,
+            itemCount: data.notes.length + 1,
             itemBuilder: (context, index) {
-              final note = data.notes[index];
-              return NoteCardWidget(note: note);
+              if (index < data.notes.length) {
+                return NoteCardWidget(note: data.notes[index]);
+              } else {
+                return data.isLoadingMore
+                    ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    : const SizedBox();
+              }
             },
           );
         },
@@ -50,7 +83,7 @@ class HomePage extends ConsumerWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const NotePage()),
+            MaterialPageRoute(builder: (_) => const NotePage()),
           );
         },
         child: const Icon(Icons.add),

@@ -44,7 +44,7 @@ class NoteCardWidget extends ConsumerWidget {
             ),
             IconButton(
               onPressed: () {
-                viewModel.deleteNotes(note.id);
+                viewModel.deleteNotes(note.id ?? '');
               },
               icon: Icon(Icons.delete_outline),
             ),

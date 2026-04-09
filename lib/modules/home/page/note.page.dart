@@ -74,11 +74,13 @@ class _NotePageState extends ConsumerState<NotePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await viewModel.updateNotes(
-            widget.note?.id,
-            titleController.text,
-            contentController.text,
-          );
+          widget.note == null
+              ? viewModel.addNotes(titleController.text, contentController.text)
+              : await viewModel.updateNotes(
+                  widget.note?.id ?? '',
+                  titleController.text,
+                  contentController.text,
+                );
           Navigator.pop(context);
         },
         child: Icon(Icons.save),

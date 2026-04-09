@@ -1,5 +1,8 @@
 package com.example.online_todo.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.online_todo.models.Note;
@@ -15,46 +18,51 @@ public class NoteService {
     private final NoteRepository repo;
     private final UserRepository userRepo;
 
-    public NoteService(NoteRepository repo,  UserRepository userRepo) {
+    public NoteService(NoteRepository repo, UserRepository userRepo) {
         this.repo = repo;
         this.userRepo = userRepo;
     }
 
-public List<Note> getAllNotes(String username) {
-
-    User user = userRepo.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-    return repo.findAll()
-            .stream()
-            .filter(note -> note.getUser().getId().equals(user.getId()))
-            .toList();
-}
-
-    public Note createNote(Note note, String userName) {
-            User user = userRepo.findByUsername(userName)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-    note.setUser(user);
-
-    return repo.save(note);
+    private User getUser(String username) {
+        return userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public void deleteNote(Long id) {
-        repo.deleteById(id);
+    // ✅ Get only user's notes (DB level)
+    public List<Note> getAllNotes(String username, int page, int pagesize) {
+        User user = getUser(username);
+        Page<Note> notes = repo.findByUser(user, PageRequest.of(page, pagesize, Sort.by("updatedAt").descending()));
+        return notes.getContent();
     }
 
+    // ✅ Create note for user
+    public Note createNote(Note note, String username) {
+        User user = getUser(username);
+        note.setUser(user);
+        return repo.save(note);
+    }
 
-    public Note updateNote(Long id, String title, String content, String updateAt) {
+    // ✅ Secure delete
+    public void deleteNote(Long id, String username) {
+        User user = getUser(username);
 
-    Note existingNote = repo.findById(id)
-            .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
+        Note note = repo.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Note not found"));
 
-    existingNote.setTitle(title);
-    existingNote.setContent(content);
-    existingNote.setUpdatedAt(updateAt);
+        repo.delete(note);
+    }
 
-    return repo.save(existingNote);
-}
-    
+    // ✅ Secure update
+    public Note updateNote(Long id, String title, String content, String updatedAt, String username) {
+        User user = getUser(username);
+
+        Note note = repo.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Note not found"));
+
+        note.setTitle(title);
+        note.setContent(content);
+        note.setUpdatedAt(updatedAt);
+
+        return repo.save(note);
+    }
 }
