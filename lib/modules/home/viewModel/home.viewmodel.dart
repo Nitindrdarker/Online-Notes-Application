@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:online_todo/injection.dart';
 import 'package:online_todo/modules/home/models/notes.dart';
-import 'package:online_todo/modules/home/repository/notes.repository.dart';
 import 'package:online_todo/modules/home/services/notes.service.dart';
 import 'package:online_todo/modules/home/stateModel/home.state.model.dart';
 

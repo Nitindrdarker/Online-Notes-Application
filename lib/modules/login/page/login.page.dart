@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:online_todo/modules/db.dart';
 import 'package:online_todo/modules/home/page/home.page.dart';
 import 'package:online_todo/modules/login/provider/login.provider.dart';
+import 'package:online_todo/modules/login/stateModel/login.stateModel.dart';
 
 class LoginRegisterPage extends ConsumerStatefulWidget {
   const LoginRegisterPage({super.key});
@@ -12,12 +13,47 @@ class LoginRegisterPage extends ConsumerStatefulWidget {
 }
 
 class _LoginRegisterPageState extends ConsumerState<LoginRegisterPage> {
+  TextEditingController? userNameController;
+  TextEditingController? passwordController;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    userNameController = TextEditingController();
+    passwordController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    userNameController?.dispose();
+    passwordController?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    TextEditingController userNameController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
     final viewModel = ref.watch(loginProvider.notifier);
     final state = ref.watch(loginProvider);
+    ref.listen(loginProvider, (previous, next) {
+      if (next.status == AuthStatus.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Success"),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      if (next.status == AuthStatus.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.message ?? "Error"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
     return Scaffold(
       appBar: AppBar(
         title: Text(state.userName != null ? "Login" : "Register"),
@@ -34,13 +70,13 @@ class _LoginRegisterPageState extends ConsumerState<LoginRegisterPage> {
             ),
             LoginField(
               title: 'User Name',
-              controller: userNameController,
+              controller: userNameController!,
               hintText: "Enter your name",
             ),
             SizedBox(height: 20),
             LoginField(
               title: "Password",
-              controller: passwordController,
+              controller: passwordController!,
               hintText: "Enter your password",
             ),
             Row(
@@ -52,8 +88,8 @@ class _LoginRegisterPageState extends ConsumerState<LoginRegisterPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       viewModel.register(
-                        userNameController.text,
-                        passwordController.text,
+                        userNameController!.text,
+                        passwordController!.text,
                       );
                     },
                     child: Text(
@@ -78,8 +114,8 @@ class _LoginRegisterPageState extends ConsumerState<LoginRegisterPage> {
                   child: ElevatedButton(
                     onPressed: () async {
                       bool success = await viewModel.login(
-                        userNameController.text,
-                        passwordController.text,
+                        userNameController!.text,
+                        passwordController!.text,
                       );
                       if (success) {
                         Navigator.pushReplacement(

@@ -1,1 +1,2 @@
 String? jwtToken;
+String? username;

@@ -12,12 +12,16 @@ class LoginViewModel extends Notifier<LoginStateModel> {
 
   Future<bool> login(String userName, String password) async {
     bool response = await getIt<LoginService>().login(userName, password);
-    state = LoginStateModel(token: jwtToken);
+    // state = LoginStateModel();
     return response;
   }
 
   Future<void> register(String userName, String password) async {
-    getIt<LoginService>().register(userName, password);
-    state = LoginStateModel(userName: userName);
+    String? response = await getIt<LoginService>().register(userName, password);
+    if (response != null) {
+      state = LoginStateModel(message: response, status: AuthStatus.error);
+    } else {
+      state = LoginStateModel(userName: userName, status: AuthStatus.success);
+    }
   }
 }

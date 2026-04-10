@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:online_todo/modules/db.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -18,16 +19,12 @@ class _ProfilePageState extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Name : Nitin",
-              style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20),
+              "Name : ${username}",
+              style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
             ),
             Text(
-              "DOB : 18/10/2001",
-              style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20),
-            ),
-            Text(
-              "Nationality : India",
-              style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20),
+              "Token : ${jwtToken}",
+              style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
             ),
           ],
         ),

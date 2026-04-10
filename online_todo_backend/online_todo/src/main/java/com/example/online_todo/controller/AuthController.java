@@ -1,5 +1,6 @@
 package com.example.online_todo.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.online_todo.JwtUtil;
@@ -22,8 +23,13 @@ public class AuthController {
 
     // ✅ Register API
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return service.register(user);
+    public ResponseEntity<?> register(@RequestBody User user) {
+        try{
+            return ResponseEntity.ok(service.register(user));
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+        
     }
 
     // ✅ Login API
@@ -35,7 +41,9 @@ public class AuthController {
 
         return Map.of(
                 "message", "Login successful",
-                "token", token
+                "token", token,
+                "username", loggedInUser.getUsername()
+                
         );
     }
 }
