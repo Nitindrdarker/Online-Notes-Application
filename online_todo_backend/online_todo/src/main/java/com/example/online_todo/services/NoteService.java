@@ -3,9 +3,11 @@ package com.example.online_todo.services;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.example.online_todo.models.Note;
+import com.example.online_todo.models.NoteEditMessage;
 import com.example.online_todo.models.User;
 import com.example.online_todo.repository.NoteRepository;
 import com.example.online_todo.repository.UserRepository;
@@ -17,10 +19,12 @@ public class NoteService {
 
     private final NoteRepository repo;
     private final UserRepository userRepo;
+    private SimpMessagingTemplate messagingTemplate;
 
-    public NoteService(NoteRepository repo, UserRepository userRepo) {
+    public NoteService(NoteRepository repo, UserRepository userRepo, SimpMessagingTemplate messagingTemplate) {
         this.repo = repo;
         this.userRepo = userRepo;
+        this.messagingTemplate = messagingTemplate;
     }
 
     private User getUser(String username) {
@@ -65,4 +69,15 @@ public class NoteService {
 
         return repo.save(note);
     }
+
+
+    public void broadcastEdit(NoteEditMessage msg) {
+
+    messagingTemplate.convertAndSend(
+        "/topic/notes/" + msg.getNoteId(),
+        msg
+    );
+}
+
+
 }
