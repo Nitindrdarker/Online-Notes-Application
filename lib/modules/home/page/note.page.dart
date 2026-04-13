@@ -1,11 +1,8 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:online_todo/modules/home/models/notes.dart';
 import 'package:online_todo/modules/home/provider/home.provider.dart';
-import 'package:stomp_dart_client/stomp_dart_client.dart';
+import 'package:online_todo/modules/home/viewModel/home.viewmodel.dart';
 
 class NotePage extends ConsumerStatefulWidget {
   final Notes? note;
@@ -18,87 +15,55 @@ class NotePage extends ConsumerStatefulWidget {
 class _NotePageState extends ConsumerState<NotePage> {
   late final TextEditingController titleController;
   late final TextEditingController contentController;
-  late StompClient stompClient;
-  bool isRemoteUpdate = false;
-  Timer? _debounce;
-
-  void connectSocket() {
-    stompClient = StompClient(
-      config: StompConfig.sockJS(
-        url: 'http://localhost:8080/ws',
-        onConnect: (frame) {
-          print("✅ CONNECTED");
-          onConnect(frame);
-        },
-        onWebSocketError: (error) {
-          print("❌ WS ERROR: $error");
-        },
-        onStompError: (frame) {
-          print("❌ STOMP ERROR: ${frame.body}");
-        },
-      ),
-    );
-
-    stompClient.activate();
-  }
-
-  void onConnect(StompFrame frame) {
-    stompClient.subscribe(
-      destination: '/topic/notes/${widget.note?.id}',
-      callback: (frame) {
-        final data = jsonDecode(frame.body!);
-
-        isRemoteUpdate = true;
-
-        titleController.text = data['title'];
-        contentController.text = data['content'];
-
-        isRemoteUpdate = false;
-      },
-    );
-  }
-
-  void listenToChanges() {
-    titleController.addListener(sendUpdate);
-    contentController.addListener(sendUpdate);
-  }
-
-  void sendUpdate() {
-    if (isRemoteUpdate) return;
-
-    if (!stompClient.connected) return; // ✅ ADD THIS
-
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-    _debounce = Timer(const Duration(milliseconds: 300), () {
-      if (!stompClient.connected) return; // extra safety
-      print("📤 Sending update");
-      stompClient.send(
-        destination: '/app/edit',
-        body: jsonEncode({
-          "noteId": int.parse(widget.note!.id!),
-          "title": titleController.text,
-          "content": contentController.text,
-        }),
-      );
-    });
-  }
-
+  late HomeViewModel vm;
+  late final removeListener;
   @override
   void initState() {
     super.initState();
+
+    vm = ref.read(homeProvider.notifier);
 
     titleController = TextEditingController(text: widget.note?.title ?? "");
 
     contentController = TextEditingController(text: widget.note?.content ?? "");
 
-    connectSocket();
-    listenToChanges();
+    // ✅ connect socket
+    if (widget.note?.id != null) {
+      vm.connectSocket(widget.note!.id!);
+    }
+
+    // ✅ listen changes (UI → VM)
+    titleController.addListener(() {
+      vm.currentTitle = titleController.text;
+      vm.currentContent = contentController.text;
+      vm.sendUpdate();
+    });
+
+    contentController.addListener(() {
+      vm.currentTitle = titleController.text;
+      vm.currentContent = contentController.text;
+      vm.sendUpdate();
+    });
+    removeListener = ref.listenManual(homeProvider, (previous, next) {
+      final note = next.value?.notes
+          .where((e) => e.id == widget.note?.id)
+          .firstOrNull;
+
+      if (note == null) return;
+
+      // prevent infinite loop + cursor jump
+      if (titleController.text != note.title) {
+        titleController.text = note.title ?? "";
+      }
+
+      if (contentController.text != note.content) {
+        contentController.text = note.content ?? "";
+      }
+    });
   }
 
   @override
   void dispose() {
-    stompClient.deactivate();
     titleController.dispose();
     contentController.dispose();
     super.dispose();
@@ -106,19 +71,21 @@ class _NotePageState extends ConsumerState<NotePage> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.read(homeProvider.notifier);
+    vm = ref.read(homeProvider.notifier);
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) async {
         // already popped
 
-        await viewModel.updateNotes(
+        await vm.updateNotes(
           widget.note?.id ?? '',
           titleController.text,
           contentController.text,
         );
 
         // manually pop after saving
+        ref.read(homeProvider.notifier).disconnectSocket();
+        removeListener();
       },
 
       child: Scaffold(
@@ -164,10 +131,7 @@ class _NotePageState extends ConsumerState<NotePage> {
             ? null
             : FloatingActionButton(
                 onPressed: () async {
-                  viewModel.addNotes(
-                    titleController.text,
-                    contentController.text,
-                  );
+                  vm.addNotes(titleController.text, contentController.text);
 
                   Navigator.pop(context);
                 },
