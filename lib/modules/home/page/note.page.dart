@@ -16,7 +16,8 @@ class _NotePageState extends ConsumerState<NotePage> {
   late final TextEditingController titleController;
   late final TextEditingController contentController;
   late HomeViewModel vm;
-  late final removeListener;
+  late final _removeListener;
+
   @override
   void initState() {
     super.initState();
@@ -44,7 +45,7 @@ class _NotePageState extends ConsumerState<NotePage> {
       vm.currentContent = contentController.text;
       vm.sendUpdate();
     });
-    removeListener = ref.listenManual(homeProvider, (previous, next) {
+    _removeListener = ref.listenManual(homeProvider, (previous, next) {
       final note = next.value?.notes
           .where((e) => e.id == widget.note?.id)
           .firstOrNull;
@@ -85,7 +86,7 @@ class _NotePageState extends ConsumerState<NotePage> {
 
         // manually pop after saving
         ref.read(homeProvider.notifier).disconnectSocket();
-        removeListener();
+        _removeListener.close();
       },
 
       child: Scaffold(
