@@ -1,16 +1,86 @@
-# online_todo
+# 📝 SyncNotes — Offline-First Notes App
 
-A new Flutter project.
+An offline-first Notes application built using **Flutter** and **Spring Boot** that allows users to create, edit, and manage notes seamlessly without internet connectivity.
 
-## Getting Started
+The app automatically synchronizes local changes with the backend once connectivity is restored while handling synchronization conflicts intelligently.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+# ✨ Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- 📴 Fully functional offline support
+- 🔄 Automatic background synchronization
+- ⚡ Real-time note updates
+- 🧠 Intelligent conflict resolution
+- 💾 Local persistence for offline access
+- ☁️ Spring Boot backend integration
+- 🔐 User authentication
+- 🗑️ Soft delete support
+- 📱 Responsive and clean Flutter UI
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+# 🏗️ Tech Stack
+
+## Frontend
+- Flutter
+- flutter_bloc
+
+## Backend
+- Spring Boot
+- Spring Data JPA
+- REST APIs
+
+## Database
+- PostgreSQL / MySQL
+
+## Local Storage
+- SQLite / Hive
+
+## State Management
+- BLoC Architecture
+
+---
+
+# 🧠 Core Problem Solved
+
+Traditional note-taking apps often fail in low-connectivity environments.
+
+This project implements an **offline-first architecture** where users can continue interacting with the application even without internet access.
+
+When connectivity is restored:
+- Local changes are synced automatically
+- Conflicts are detected and resolved
+- Data consistency is maintained between client and server
+
+---
+
+# ⚙️ System Architecture
+
+```text
+                ┌────────────────┐
+                │   Flutter App  │
+                └───────┬────────┘
+                        │
+         Offline Reads/Writes
+                        │
+                        ▼
+                ┌────────────────┐
+                │ Local Database │
+                │ SQLite / Hive  │
+                └───────┬────────┘
+                        │
+             Sync Engine / Queue
+                        │
+                        ▼
+                ┌────────────────┐
+                │ Spring Boot API│
+                └───────┬────────┘
+                        │
+                        ▼
+                ┌────────────────┐
+                │ PostgreSQL DB  │
+                └────────────────┘
+```
+
+---
