@@ -8,8 +8,7 @@ The app automatically synchronizes local changes with the backend once connectiv
 
 # ✨ Features
 
-- 📴 Fully functional offline support
-- 🔄 Automatic background synchronization
+
 - ⚡ Real-time note updates
 - 🧠 Intelligent conflict resolution
 - 💾 Local persistence for offline access
@@ -24,63 +23,61 @@ The app automatically synchronizes local changes with the backend once connectiv
 
 ## Frontend
 - Flutter
-- flutter_bloc
+- RiverPod
 
 ## Backend
 - Spring Boot
 - Spring Data JPA
 - REST APIs
+- Stomp
 
 ## Database
 - PostgreSQL / MySQL
 
-## Local Storage
-- SQLite / Hive
 
 ## State Management
-- BLoC Architecture
+- RiverPod Architecture
 
 ---
 
 # 🧠 Core Problem Solved
+Traditional note-taking applications are designed for single-user interactions and require manual refreshes to view updates from others.
 
-Traditional note-taking apps often fail in low-connectivity environments.
+This project implements a real-time collaborative note-taking system where multiple users can simultaneously edit and view notes with instant synchronization across all connected clients.
 
-This project implements an **offline-first architecture** where users can continue interacting with the application even without internet access.
+When a user updates a note:
 
-When connectivity is restored:
-- Local changes are synced automatically
-- Conflicts are detected and resolved
-- Data consistency is maintained between client and server
-
----
-
+Changes are broadcast instantly to all collaborators
+Updates are reflected in real time without page refreshes
+WebSocket connections maintain low-latency communication
+Data consistency is maintained across all active sessions
 # ⚙️ System Architecture
-
-```text
                 ┌────────────────┐
                 │   Flutter App  │
                 └───────┬────────┘
                         │
-         Offline Reads/Writes
+              STOMP over WebSocket
                         │
                         ▼
                 ┌────────────────┐
-                │ Local Database │
-                │ SQLite / Hive  │
+                │ Spring Boot    │
+                │ WebSocket API  │
+                │ (STOMP Broker) │
                 └───────┬────────┘
                         │
-             Sync Engine / Queue
+          Broadcast Note Updates
                         │
                         ▼
                 ┌────────────────┐
-                │ Spring Boot API│
+                │ Collaboration  │
+                │   Service      │
                 └───────┬────────┘
                         │
                         ▼
                 ┌────────────────┐
                 │ PostgreSQL DB  │
-                └────────────────┘
+
+
 ```
 
 ---
