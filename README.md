@@ -9,13 +9,14 @@ The application instantly propagates note updates to all connected users through
 # ✨ Features
 
 
--Real-time note synchronization across multiple users
--Collaborative editing with instant updates
--STOMP-based publish/subscribe messaging architecture
--WebSocket-powered low-latency communication
--Persistent note storage using PostgreSQL
--Reactive Flutter UI with live data updates
--Scalable Spring Boot backend architecture
+
+- Real-time note synchronization across multiple users
+- Collaborative editing with instant updates
+- STOMP-based publish/subscribe messaging architecture
+- WebSocket-powered low-latency communication
+- Persistent note storage using PostgreSQL
+- Reactive Flutter UI with live data updates
+- Scalable Spring Boot backend architecture
 
 ---
 
