@@ -1,21 +1,21 @@
 # 📝 SyncNotes — Offline-First Notes App
 
-An offline-first Notes application built using **Flutter** and **Spring Boot** that allows users to create, edit, and manage notes seamlessly without internet connectivity.
+A real-time collaborative Notes application built using Flutter, Spring Boot, and STOMP WebSockets that enables multiple users to create, edit, and collaborate on notes simultaneously.
 
-The app automatically synchronizes local changes with the backend once connectivity is restored while handling synchronization conflicts intelligently.
+The application instantly propagates note updates to all connected users through WebSocket communication, ensuring a seamless and synchronized collaboration experience without requiring manual refreshes.
 
 ---
 
 # ✨ Features
 
 
-- ⚡ Real-time note updates
-- 🧠 Intelligent conflict resolution
-- 💾 Local persistence for offline access
-- ☁️ Spring Boot backend integration
-- 🔐 User authentication
-- 🗑️ Soft delete support
-- 📱 Responsive and clean Flutter UI
+Real-time note synchronization across multiple users
+Collaborative editing with instant updates
+STOMP-based publish/subscribe messaging architecture
+WebSocket-powered low-latency communication
+Persistent note storage using PostgreSQL
+Reactive Flutter UI with live data updates
+Scalable Spring Boot backend architecture
 
 ---
 
